@@ -2,7 +2,6 @@ import { BookOpen, ChevronRight, Download } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useJournals } from '../hooks/useDevotional';
 import { useShowInstallButton } from '../hooks/useShowInstallButton';
-import { BisericaImpactLogo } from '../components/ui/BisericaImpactLogo';
 import { ErrorState } from '../components/ui/ErrorState';
 
 export default function HomePage() {
@@ -37,7 +36,12 @@ export default function HomePage() {
         <div className="max-w-lg mx-auto px-5 pt-12 pb-10">
           <div className="flex items-start justify-between mb-4">
             <div className="flex flex-col">
-              <BisericaImpactLogo className="text-white" height={40} />
+              <img
+                src={`${import.meta.env.BASE_URL}image.png`}
+                alt="Biserica Impact Timișoara"
+                height={40}
+                className="h-10 w-auto"
+              />
               <p className="text-[#e8c76b] text-xs font-medium mt-1.5 ml-0.5">Jurnale Devoționale</p>
             </div>
             {showInstall && (
