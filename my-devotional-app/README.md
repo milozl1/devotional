@@ -88,3 +88,24 @@ If this header is removed or changed, progress access is blocked by RLS.
 ## Release Checklist
 
 See `RELEASE_CHECKLIST.md`.
+
+## GitHub Pages Deploy
+
+Workflow file: `.github/workflows/deploy-pages.yml` (repo root).
+
+Required repo secrets:
+
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_ANON_KEY`
+
+Setup once in GitHub:
+
+1. Go to `Settings -> Pages`.
+2. Set `Source` to `GitHub Actions`.
+3. Push to `main` or run the workflow manually from `Actions`.
+
+Notes:
+
+- Workflow builds from `my-devotional-app`.
+- `VITE_BASE_PATH` is auto-calculated in CI (`/repo-name/` for project pages, `/` for `*.github.io` repos).
+- `VITE_USE_HASH_ROUTER=true` is used in Pages builds, so routes work without server rewrites.

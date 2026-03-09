@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, HashRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthProvider';
 import { ProtectedRoute } from './components/layout/ProtectedRoute';
@@ -10,11 +10,12 @@ const DayDevotionalPage = lazy(() => import('./pages/DayDevotionalPage'));
 const AdminLoginPage = lazy(() => import('./pages/admin/AdminLoginPage'));
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
 const DevotionalForm = lazy(() => import('./pages/admin/DevotionalForm'));
+const RouterComponent = import.meta.env.VITE_USE_HASH_ROUTER === 'true' ? HashRouter : BrowserRouter;
 
 export default function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <RouterComponent>
         <Suspense fallback={<FullPageLoader />}>
           <Routes>
             {/* Public routes */}
@@ -29,7 +30,7 @@ export default function App() {
             </Route>
           </Routes>
         </Suspense>
-      </BrowserRouter>
+      </RouterComponent>
 
       <Toaster
         position="top-center"
