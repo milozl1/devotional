@@ -80,10 +80,12 @@ await test('1.4 Manifest.json valid with icons', async () => {
   log('PASS', '1.4 Manifest.json valid', `${data.icons.length} icons`);
 });
 
-await test('1.5 SVG icon present with IMPACT text', async () => {
-  const svg = readFileSync(resolve(DIST, 'icon.svg'), 'utf-8');
-  if (!svg.includes('IMPACT')) throw new Error('SVG missing IMPACT text');
-  log('PASS', '1.5 SVG icon present with IMPACT text');
+await test('1.5 PNG icon present', async () => {
+  const p = resolve(DIST, 'image.png');
+  if (!existsSync(p)) throw new Error('image.png missing');
+  const s = statSync(p);
+  if (s.size < 500) throw new Error(`image.png too small (${s.size} bytes)`);
+  log('PASS', '1.5 PNG icon present');
 });
 
 await test('1.6 PNG icons exist (192 & 512)', async () => {
