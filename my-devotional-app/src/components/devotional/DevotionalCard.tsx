@@ -45,9 +45,9 @@ export function DevotionalCard({ devotional, progress }: DevotionalCardProps) {
         </div>
 
         {/* Content */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-0.5">
-            <h3 className="font-semibold text-slate-800 truncate">{devotional.title}</h3>
+          <div className="flex-1 min-w-0">
+          <div className="mb-0.5">
+            <h3 className="font-semibold text-slate-800 text-[15px] leading-snug">{devotional.title}</h3>
           </div>
           <div className="flex items-center gap-2 text-xs text-slate-400">
             <BookOpen className="w-3 h-3" />

@@ -35,7 +35,7 @@ export function TextQuestions({ questions }: TextQuestionsProps) {
             <span className="flex-shrink-0 w-7 h-7 rounded-lg bg-[#1e3a5f]/10 text-[#1e3a5f] flex items-center justify-center text-sm font-bold">
               {index + 1}
             </span>
-            <p className="text-slate-700 text-sm leading-relaxed pt-0.5">{question}</p>
+            <p className="text-slate-700 text-sm leading-relaxed pt-0.5 break-words min-w-0">{question}</p>
           </motion.div>
         ))}
       </div>

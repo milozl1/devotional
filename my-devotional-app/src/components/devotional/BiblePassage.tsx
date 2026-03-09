@@ -28,8 +28,8 @@ export function BiblePassage({ reference, text }: BiblePassageProps) {
       {/* Passage text */}
       <div className="relative">
         <div className="absolute left-0 top-0 bottom-0 w-1 rounded-full bg-gradient-to-b from-[#d4a843] to-[#e8c76b]" />
-        <blockquote className="pl-5 pr-2">
-          <p className="text-slate-700 text-base leading-relaxed italic font-serif">
+        <blockquote className="pl-5 pr-1">
+          <p className="text-slate-700 text-[15px] leading-relaxed italic font-serif whitespace-pre-line break-words">
             „{text}"
           </p>
         </blockquote>

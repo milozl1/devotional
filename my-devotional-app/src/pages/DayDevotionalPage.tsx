@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, ChevronLeft, Check, Share2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -26,6 +26,13 @@ export default function DayDevotionalPage() {
   const [currentStep, setCurrentStep] = useState(0);
   const [direction, setDirection] = useState(0);
   const [completionDismissed, setCompletionDismissed] = useState(false);
+
+  // Reset stepper to step 0 when navigating to a different day
+  useEffect(() => {
+    setCurrentStep(0);
+    setDirection(0);
+    setCompletionDismissed(false);
+  }, [day]);
 
   const completedSteps = progress?.completed_steps ?? {
     passage: false,
@@ -121,7 +128,7 @@ export default function DayDevotionalPage() {
       </div>
 
       {/* Step content */}
-      <div className="flex-1 max-w-lg mx-auto w-full px-5 py-4 overflow-hidden">
+      <div className="flex-1 max-w-lg mx-auto w-full px-5 py-4 overflow-x-hidden overflow-y-auto">
         <AnimatePresence mode="wait" custom={direction}>
           <motion.div
             key={currentStep}

@@ -34,7 +34,7 @@ export function MeditationQuestions({ questions }: MeditationQuestionsProps) {
           >
             <div className="flex items-start gap-3">
               <div className="flex-shrink-0 w-2 h-2 rounded-full bg-[#d4a843] mt-2" />
-              <p className="text-slate-700 text-sm leading-relaxed italic">{question}</p>
+              <p className="text-slate-700 text-sm leading-relaxed italic break-words min-w-0">{question}</p>
             </div>
           </motion.div>
         ))}
