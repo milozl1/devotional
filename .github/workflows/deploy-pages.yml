@@ -1,12 +1,8 @@
-name: Deploy GitHub Pages
+name: Deploy to GitHub Pages
 
 on:
   push:
-    branches:
-      - main
-    paths:
-      - '.github/workflows/deploy-pages.yml'
-      - 'my-devotional-app/**'
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -19,58 +15,45 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: my-devotional-app
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22.13.0
-          cache: npm
-          cache-dependency-path: my-devotional-app/package-lock.json
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
-      - name: Resolve base path
-        id: base
-        run: |
-          REPO_NAME="${GITHUB_REPOSITORY#*/}"
-          if [[ "$REPO_NAME" == *.github.io ]]; then
-            echo "base_path=/" >> "$GITHUB_OUTPUT"
-          else
-            echo "base_path=/$REPO_NAME/" >> "$GITHUB_OUTPUT"
-          fi
+          node-version: 20
 
       - name: Install dependencies
-        run: npm ci
+        working-directory: my-devotional-app
+        run: npm install
 
       - name: Build
+        working-directory: my-devotional-app
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
           VITE_USE_HASH_ROUTER: 'true'
-          VITE_BASE_PATH: ${{ steps.base.outputs.base_path }}
+          VITE_BASE_PATH: /devotional/
         run: npm run build
+
+      - name: Copy index.html as 404.html (SPA fallback)
+        working-directory: my-devotional-app
+        run: cp dist/index.html dist/404.html
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: my-devotional-app/dist
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
