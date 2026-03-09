@@ -1,6 +1,7 @@
-import { BookOpen, ChevronLeft, ChevronRight, RefreshCw, Download } from 'lucide-react';
+import { BookOpen, ChevronLeft, ChevronRight, Download, RefreshCw } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useJournal, useDevotionals, useAllProgress } from '../hooks/useDevotional';
+import { useShowInstallButton } from '../hooks/useShowInstallButton';
 import { DevotionalCard } from '../components/devotional/DevotionalCard';
 import { ErrorState } from '../components/ui/ErrorState';
 import { Button } from '../components/ui/Button';
@@ -8,6 +9,7 @@ import { Button } from '../components/ui/Button';
 export default function JournalDaysPage() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const showInstall = useShowInstallButton();
 
   const { journal, loading: journalLoading, error: journalError } = useJournal(slug);
   const { devotionals, loading: devLoading, error: devError, refetch } = useDevotionals(journal?.id);
@@ -59,14 +61,16 @@ export default function JournalDaysPage() {
               <ChevronLeft className="w-4 h-4" />
               <span className="text-sm">Toate jurnalele</span>
             </button>
-            <button
-              onClick={() => navigate('/instaleaza')}
-              className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 backdrop-blur rounded-lg px-2.5 py-1.5 transition-all duration-200 text-white/70 hover:text-white"
-              title="Instalează aplicația"
-            >
-              <Download className="w-3.5 h-3.5" />
-              <span className="text-xs font-medium">Instalează</span>
-            </button>
+            {showInstall && (
+              <button
+                onClick={() => navigate('/instaleaza')}
+                className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 backdrop-blur rounded-lg px-2.5 py-1.5 transition-all duration-200 text-white/70 hover:text-white"
+                title="Instalează aplicația"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span className="text-xs font-medium">Instalează</span>
+              </button>
+            )}
           </div>
 
           <div className="flex items-center gap-3 mb-6">

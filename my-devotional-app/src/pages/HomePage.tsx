@@ -1,11 +1,13 @@
 import { BookOpen, ChevronRight, Download } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useJournals } from '../hooks/useDevotional';
+import { useShowInstallButton } from '../hooks/useShowInstallButton';
 import { ErrorState } from '../components/ui/ErrorState';
 
 export default function HomePage() {
   const { journals, loading, error, refetch } = useJournals();
   const navigate = useNavigate();
+  const showInstall = useShowInstallButton();
 
   if (loading) {
     return (
@@ -42,14 +44,16 @@ export default function HomePage() {
                 <p className="text-[#e8c76b] text-xs font-medium">Jurnale Devoționale</p>
               </div>
             </div>
-            <button
-              onClick={() => navigate('/instaleaza')}
-              className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 backdrop-blur rounded-xl px-3 py-2 transition-all duration-200 text-white/80 hover:text-white shrink-0 mt-0.5"
-              title="Instalează aplicația"
-            >
-              <Download className="w-4 h-4" />
-              <span className="text-xs font-medium hidden sm:inline">Instalează</span>
-            </button>
+            {showInstall && (
+              <button
+                onClick={() => navigate('/instaleaza')}
+                className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 backdrop-blur rounded-xl px-3 py-2 transition-all duration-200 text-white/80 hover:text-white shrink-0 mt-0.5"
+                title="Instalează aplicația"
+              >
+                <Download className="w-4 h-4" />
+                <span className="text-xs font-medium hidden sm:inline">Instalează</span>
+              </button>
+            )}
           </div>
           <p className="text-slate-300 text-sm leading-relaxed">
             Alege un jurnal devoțional pentru a începe sau continua studiul biblic zilnic.
