@@ -26,31 +26,14 @@ export default function DayDevotionalPage() {
 
   const [currentStep, setCurrentStep] = useState(0);
   const [direction, setDirection] = useState(0);
-  // Track whether the completion was already done when the page loaded
-  const [wasAlreadyCompleted, setWasAlreadyCompleted] = useState<boolean | null>(null);
   const [justCompleted, setJustCompleted] = useState(false);
 
   // Reset stepper to step 0 when navigating to a different day
   useEffect(() => {
     setCurrentStep(0);
     setDirection(0);
-    setWasAlreadyCompleted(null);
     setJustCompleted(false);
   }, [day]);
-
-  // Record whether the devotional was already completed when we first loaded it
-  useEffect(() => {
-    if (wasAlreadyCompleted === null && progress !== undefined) {
-      setWasAlreadyCompleted(Boolean(progress?.is_completed));
-    }
-  }, [progress, wasAlreadyCompleted]);
-
-  // Detect when the devotional transitions from incomplete → complete (just finished now)
-  useEffect(() => {
-    if (wasAlreadyCompleted === false && progress?.is_completed) {
-      setJustCompleted(true);
-    }
-  }, [progress?.is_completed, wasAlreadyCompleted]);
 
   const completedSteps = progress?.completed_steps ?? {
     passage: false,
@@ -74,6 +57,9 @@ export default function DayDevotionalPage() {
 
     if (currentStep < DEVOTIONAL_STEPS.length - 1) {
       goToStep(currentStep + 1);
+    } else {
+      // Last step just completed — show completion overlay
+      setJustCompleted(true);
     }
   };
 
@@ -175,7 +161,7 @@ export default function DayDevotionalPage() {
       <div className="sticky bottom-0 bg-white border-t border-slate-100">
         <div className="max-w-lg mx-auto px-5 py-4 flex items-center gap-3">
           <Button
-            variant="ghost"
+            variant="secondary"
             onClick={handlePrev}
             disabled={currentStep === 0}
             className="flex-1"
