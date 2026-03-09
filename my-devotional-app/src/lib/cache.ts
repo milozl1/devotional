@@ -1,11 +1,11 @@
 // ============================================
 // IndexedDB Cache Layer
 // Eliminates redundant Supabase queries for
-// devotionals and progress data.
+// journals, devotionals and progress data.
 // ============================================
 
 const DB_NAME = 'devotional_cache';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 interface CacheEntry<T> {
   key: string;
@@ -14,11 +14,12 @@ interface CacheEntry<T> {
   ttl: number; // milliseconds
 }
 
-// Default TTL: 10 minutes for devotionals, 5 minutes for progress
+// Default TTLs
 const TTL = {
-  devotionals: 10 * 60 * 1000,
-  progress: 5 * 60 * 1000,
-  single: 15 * 60 * 1000,
+  journals: 15 * 60 * 1000,     // 15 min
+  devotionals: 10 * 60 * 1000,  // 10 min
+  progress: 5 * 60 * 1000,      //  5 min
+  single: 15 * 60 * 1000,       // 15 min
 } as const;
 
 function openDB(): Promise<IDBDatabase> {
@@ -128,11 +129,36 @@ async function invalidateByPrefix(prefix: string): Promise<void> {
 // ─── Public API ────────────────────────────
 
 /**
- * Cache-first fetch for published devotionals list.
- * Returns cached data if fresh, otherwise calls fetcher and caches result.
+ * Cache-first fetch for active journals list.
  */
-export async function cachedDevotionals<T>(fetcher: () => Promise<T>): Promise<T> {
-  const key = 'devotionals:published';
+export async function cachedJournals<T>(fetcher: () => Promise<T>): Promise<T> {
+  const key = 'journals:active';
+  const cached = await getFromCache<T>(key);
+  if (cached) return cached;
+
+  const data = await fetcher();
+  await setInCache(key, data, TTL.journals);
+  return data;
+}
+
+/**
+ * Cache-first fetch for a single journal by slug.
+ */
+export async function cachedJournalBySlug<T>(slug: string, fetcher: () => Promise<T>): Promise<T> {
+  const key = `journal:slug:${slug}`;
+  const cached = await getFromCache<T>(key);
+  if (cached) return cached;
+
+  const data = await fetcher();
+  await setInCache(key, data, TTL.journals);
+  return data;
+}
+
+/**
+ * Cache-first fetch for published devotionals list (per journal).
+ */
+export async function cachedDevotionals<T>(journalId: string, fetcher: () => Promise<T>): Promise<T> {
+  const key = `devotionals:${journalId}`;
   const cached = await getFromCache<T>(key);
   if (cached) return cached;
 
@@ -142,10 +168,10 @@ export async function cachedDevotionals<T>(fetcher: () => Promise<T>): Promise<T
 }
 
 /**
- * Cache-first fetch for a single devotional by day number.
+ * Cache-first fetch for a single devotional by journal + day number.
  */
-export async function cachedDevotionalByDay<T>(dayNumber: number, fetcher: () => Promise<T>): Promise<T> {
-  const key = `devotional:day:${dayNumber}`;
+export async function cachedDevotionalByDay<T>(journalId: string, dayNumber: number, fetcher: () => Promise<T>): Promise<T> {
+  const key = `devotional:${journalId}:day:${dayNumber}`;
   const cached = await getFromCache<T>(key);
   if (cached) return cached;
 
@@ -172,6 +198,14 @@ export async function cachedProgress<T>(deviceId: string, fetcher: () => Promise
  */
 export async function invalidateProgress(deviceId: string): Promise<void> {
   await invalidateByPrefix(`progress:${deviceId}`);
+}
+
+/**
+ * Invalidate all journal caches.
+ */
+export async function invalidateJournals(): Promise<void> {
+  await invalidateByPrefix('journals:');
+  await invalidateByPrefix('journal:');
 }
 
 /**

@@ -6,9 +6,10 @@ import type { Devotional, UserProgress } from '../../types';
 interface DevotionalCardProps {
   devotional: Devotional;
   progress?: UserProgress;
+  journalSlug: string;
 }
 
-export function DevotionalCard({ devotional, progress }: DevotionalCardProps) {
+export function DevotionalCard({ devotional, progress, journalSlug }: DevotionalCardProps) {
   const navigate = useNavigate();
   const isCompleted = progress?.is_completed ?? false;
   const completedCount = progress
@@ -17,7 +18,7 @@ export function DevotionalCard({ devotional, progress }: DevotionalCardProps) {
 
   return (
     <button
-      onClick={() => navigate(`/ziua/${devotional.day_number}`)}
+      onClick={() => navigate(`/jurnal/${journalSlug}/ziua/${devotional.day_number}`)}
       className={cn(
         'w-full text-left p-4 rounded-2xl border transition-all duration-200 group',
         'hover:shadow-md active:scale-[0.98]',

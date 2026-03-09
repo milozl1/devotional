@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, ChevronLeft, Check, Share2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useDevotional, useProgress } from '../hooks/useDevotional';
+import { useJournal, useDevotional, useProgress } from '../hooks/useDevotional';
 import { Stepper, StepLabels } from '../components/devotional/Stepper';
 import { BiblePassage } from '../components/devotional/BiblePassage';
 import { TextQuestions } from '../components/devotional/TextQuestions';
@@ -16,11 +16,12 @@ import { DEVOTIONAL_STEPS } from '../types';
 import type { DevotionalStep } from '../types';
 
 export default function DayDevotionalPage() {
-  const { dayNumber } = useParams<{ dayNumber: string }>();
+  const { slug, dayNumber } = useParams<{ slug: string; dayNumber: string }>();
   const navigate = useNavigate();
   const day = parseInt(dayNumber || '1', 10);
 
-  const { devotional, loading, error } = useDevotional(day);
+  const { journal } = useJournal(slug);
+  const { devotional, loading, error } = useDevotional(journal?.id, day);
   const { progress, markStep } = useProgress(devotional?.id);
 
   const [currentStep, setCurrentStep] = useState(0);
@@ -95,7 +96,7 @@ export default function DayDevotionalPage() {
       <div className="bg-white border-b border-slate-100 sticky top-0 z-20">
         <div className="max-w-lg mx-auto px-4 py-3 flex items-center justify-between">
           <button
-            onClick={() => navigate('/')}
+            onClick={() => navigate(`/jurnal/${slug}`)}
             className="flex items-center gap-1 text-slate-500 hover:text-slate-800 transition-colors"
           >
             <ChevronLeft className="w-5 h-5" />
@@ -216,7 +217,7 @@ export default function DayDevotionalPage() {
                   variant="primary"
                   size="lg"
                   className="w-full"
-                  onClick={() => navigate(`/ziua/${day + 1}`)}
+                  onClick={() => navigate(`/jurnal/${slug}/ziua/${day + 1}`)}
                 >
                   Ziua următoare
                   <ArrowRight className="w-4 h-4" />
@@ -224,7 +225,7 @@ export default function DayDevotionalPage() {
                 <Button
                   variant="ghost"
                   className="w-full"
-                  onClick={() => navigate('/')}
+                  onClick={() => navigate(`/jurnal/${slug}`)}
                 >
                   Înapoi la listă
                 </Button>

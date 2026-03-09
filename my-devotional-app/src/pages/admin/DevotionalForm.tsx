@@ -8,6 +8,7 @@ import type { DevotionalFormData } from '../../types';
 import toast from 'react-hot-toast';
 
 const emptyForm: DevotionalFormData = {
+  journal_id: '',
   day_number: 1,
   title: '',
   date: new Date().toISOString().split('T')[0],
@@ -20,7 +21,7 @@ const emptyForm: DevotionalFormData = {
 };
 
 export default function DevotionalForm() {
-  const { id } = useParams<{ id: string }>();
+  const { journalId, id } = useParams<{ journalId: string; id: string }>();
   const navigate = useNavigate();
   const isEditing = id && id !== 'new';
 
@@ -35,6 +36,7 @@ export default function DevotionalForm() {
       const data = await getDevotionalById(id!);
       if (data) {
         setForm({
+          journal_id: data.journal_id,
           day_number: data.day_number,
           title: data.title,
           date: data.date,
@@ -94,6 +96,7 @@ export default function DevotionalForm() {
 
     const data: DevotionalFormData = {
       ...form,
+      journal_id: journalId!,
       text_questions: form.text_questions.filter((q) => q.trim()),
       meditation_questions: form.meditation_questions.filter((q) => q.trim()),
       is_published: publish !== undefined ? publish : form.is_published,
@@ -108,7 +111,7 @@ export default function DevotionalForm() {
         await createDevotional(data);
         toast.success('Devotional creat!');
       }
-      navigate('/admin');
+      navigate(`/admin/jurnal/${journalId}`);
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Eroare la salvare');
     } finally {
@@ -124,7 +127,7 @@ export default function DevotionalForm() {
       <div className="bg-white border-b border-slate-100 sticky top-0 z-20">
         <div className="max-w-2xl mx-auto px-5 py-3 flex items-center justify-between">
           <button
-            onClick={() => navigate('/admin')}
+            onClick={() => navigate(`/admin/jurnal/${journalId}`)}
             className="flex items-center gap-1 text-slate-500 hover:text-slate-800 transition-colors"
           >
             <ChevronLeft className="w-5 h-5" />

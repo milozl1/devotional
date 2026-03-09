@@ -6,6 +6,7 @@ import { ProtectedRoute } from './components/layout/ProtectedRoute';
 import { FullPageLoader } from './components/ui/LoadingSpinner';
 
 const HomePage = lazy(() => import('./pages/HomePage'));
+const JournalDaysPage = lazy(() => import('./pages/JournalDaysPage'));
 const DayDevotionalPage = lazy(() => import('./pages/DayDevotionalPage'));
 const AdminLoginPage = lazy(() => import('./pages/admin/AdminLoginPage'));
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
@@ -19,13 +20,15 @@ export default function App() {
           <Routes>
             {/* Public routes */}
             <Route path="/" element={<HomePage />} />
-            <Route path="/ziua/:dayNumber" element={<DayDevotionalPage />} />
+            <Route path="/jurnal/:slug" element={<JournalDaysPage />} />
+            <Route path="/jurnal/:slug/ziua/:dayNumber" element={<DayDevotionalPage />} />
 
             {/* Admin routes */}
             <Route path="/admin/login" element={<AdminLoginPage />} />
             <Route element={<ProtectedRoute />}>
               <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="/admin/devotional/:id" element={<DevotionalForm />} />
+              <Route path="/admin/jurnal/:journalId" element={<AdminDashboard />} />
+              <Route path="/admin/devotional/:journalId/:id" element={<DevotionalForm />} />
             </Route>
           </Routes>
         </Suspense>

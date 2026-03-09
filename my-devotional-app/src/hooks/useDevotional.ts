@@ -1,24 +1,26 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
+  getActiveJournals,
+  getJournalBySlug,
   getPublishedDevotionals,
   getDevotionalByDay,
   getAllUserProgress,
   getUserProgress,
   updateStepProgress,
 } from '../lib/api/public';
-import type { Devotional, UserProgress, CompletedSteps } from '../types';
+import type { Journal, Devotional, UserProgress, CompletedSteps } from '../types';
 
-// Hook to get all published devotionals
-export function useDevotionals() {
-  const [devotionals, setDevotionals] = useState<Devotional[]>([]);
+// Hook to get all active journals
+export function useJournals() {
+  const [journals, setJournals] = useState<Journal[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetch = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await getPublishedDevotionals();
-      setDevotionals(data);
+      const data = await getActiveJournals();
+      setJournals(data);
       setError(null);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Eroare la încărcare');
@@ -31,20 +33,74 @@ export function useDevotionals() {
     fetch();
   }, [fetch]);
 
+  return { journals, loading, error, refetch: fetch };
+}
+
+// Hook to get a single journal by slug
+export function useJournal(slug: string | undefined) {
+  const [journal, setJournal] = useState<Journal | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!slug) return;
+    async function fetch() {
+      try {
+        setLoading(true);
+        const data = await getJournalBySlug(slug!);
+        setJournal(data);
+        setError(null);
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : 'Eroare la încărcare');
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetch();
+  }, [slug]);
+
+  return { journal, loading, error };
+}
+
+// Hook to get all published devotionals for a journal
+export function useDevotionals(journalId: string | undefined) {
+  const [devotionals, setDevotionals] = useState<Devotional[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetch = useCallback(async () => {
+    if (!journalId) return;
+    try {
+      setLoading(true);
+      const data = await getPublishedDevotionals(journalId);
+      setDevotionals(data);
+      setError(null);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Eroare la încărcare');
+    } finally {
+      setLoading(false);
+    }
+  }, [journalId]);
+
+  useEffect(() => {
+    fetch();
+  }, [fetch]);
+
   return { devotionals, loading, error, refetch: fetch };
 }
 
-// Hook to get a single devotional by day number
-export function useDevotional(dayNumber: number) {
+// Hook to get a single devotional by day number (within a journal)
+export function useDevotional(journalId: string | undefined, dayNumber: number) {
   const [devotional, setDevotional] = useState<Devotional | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!journalId) return;
     async function fetch() {
       try {
         setLoading(true);
-        const data = await getDevotionalByDay(dayNumber);
+        const data = await getDevotionalByDay(journalId!, dayNumber);
         setDevotional(data);
         setError(null);
       } catch (err: unknown) {
@@ -54,7 +110,7 @@ export function useDevotional(dayNumber: number) {
       }
     }
     fetch();
-  }, [dayNumber]);
+  }, [journalId, dayNumber]);
 
   return { devotional, loading, error };
 }

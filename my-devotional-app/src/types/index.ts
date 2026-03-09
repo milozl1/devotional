@@ -2,8 +2,33 @@
 // DEVOTIONAL APP - TYPE DEFINITIONS
 // ============================================
 
+export interface Journal {
+  id: string;
+  title: string;
+  slug: string;
+  description: string | null;
+  cover_emoji: string;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+  // Computed – not a DB column
+  devotional_count?: number;
+  published_count?: number;
+}
+
+export interface JournalFormData {
+  title: string;
+  slug: string;
+  description: string | null;
+  cover_emoji: string;
+  is_active: boolean;
+  sort_order: number;
+}
+
 export interface Devotional {
   id: string;
+  journal_id: string;
   day_number: number;
   title: string;
   date: string;
@@ -18,6 +43,7 @@ export interface Devotional {
 }
 
 export interface DevotionalFormData {
+  journal_id: string;
   day_number: number;
   title: string;
   date: string;
@@ -64,3 +90,13 @@ export const DEVOTIONAL_STEPS: { key: DevotionalStep; label: string; icon: strin
   { key: 'meditation', label: 'Meditație', icon: 'heart' },
   { key: 'prayer', label: 'Rugăciune', icon: 'hands' },
 ];
+
+// Helper to generate a slug from a title
+export function generateSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // remove diacritics
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}

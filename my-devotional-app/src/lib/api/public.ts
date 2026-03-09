@@ -1,10 +1,12 @@
 import { supabase } from '../supabase';
-import type { CompletedSteps, Devotional, UserProgress } from '../../types';
+import type { CompletedSteps, Devotional, Journal, UserProgress } from '../../types';
 import { getDeviceId } from '../utils';
 import {
   cachedDevotionals,
   cachedDevotionalByDay,
   cachedProgress,
+  cachedJournals,
+  cachedJournalBySlug,
   invalidateProgress,
 } from '../cache';
 
@@ -15,10 +17,58 @@ const DEFAULT_STEPS: CompletedSteps = {
   prayer: false,
 };
 
-async function _fetchPublishedDevotionals(): Promise<Devotional[]> {
+// ─── Journals ──────────────────────────────
+
+async function _fetchActiveJournals(): Promise<Journal[]> {
+  const { data, error } = await supabase
+    .from('journals')
+    .select('*')
+    .eq('is_active', true)
+    .order('sort_order', { ascending: true });
+
+  if (error) throw error;
+
+  // Get counts per journal
+  const journals: Journal[] = data || [];
+  for (const j of journals) {
+    const { count } = await supabase
+      .from('devotionals')
+      .select('*', { count: 'exact', head: true })
+      .eq('journal_id', j.id)
+      .eq('is_published', true);
+    j.published_count = count ?? 0;
+  }
+
+  return journals;
+}
+
+export function getActiveJournals(): Promise<Journal[]> {
+  return cachedJournals(_fetchActiveJournals);
+}
+
+async function _fetchJournalBySlug(slug: string): Promise<Journal | null> {
+  const { data, error } = await supabase
+    .from('journals')
+    .select('*')
+    .eq('slug', slug)
+    .eq('is_active', true)
+    .maybeSingle();
+
+  if (error) throw error;
+  return data;
+}
+
+export function getJournalBySlug(slug: string): Promise<Journal | null> {
+  return cachedJournalBySlug(slug, () => _fetchJournalBySlug(slug));
+}
+
+// ─── Devotionals ───────────────────────────
+
+async function _fetchPublishedDevotionals(journalId: string): Promise<Devotional[]> {
   const { data, error } = await supabase
     .from('devotionals')
     .select('*')
+    .eq('journal_id', journalId)
     .eq('is_published', true)
     .order('day_number', { ascending: true });
 
@@ -26,14 +76,15 @@ async function _fetchPublishedDevotionals(): Promise<Devotional[]> {
   return data || [];
 }
 
-export function getPublishedDevotionals(): Promise<Devotional[]> {
-  return cachedDevotionals(_fetchPublishedDevotionals);
+export function getPublishedDevotionals(journalId: string): Promise<Devotional[]> {
+  return cachedDevotionals(journalId, () => _fetchPublishedDevotionals(journalId));
 }
 
-async function _fetchDevotionalByDay(dayNumber: number): Promise<Devotional | null> {
+async function _fetchDevotionalByDay(journalId: string, dayNumber: number): Promise<Devotional | null> {
   const { data, error } = await supabase
     .from('devotionals')
     .select('*')
+    .eq('journal_id', journalId)
     .eq('day_number', dayNumber)
     .eq('is_published', true)
     .maybeSingle();
@@ -42,9 +93,11 @@ async function _fetchDevotionalByDay(dayNumber: number): Promise<Devotional | nu
   return data;
 }
 
-export function getDevotionalByDay(dayNumber: number): Promise<Devotional | null> {
-  return cachedDevotionalByDay(dayNumber, () => _fetchDevotionalByDay(dayNumber));
+export function getDevotionalByDay(journalId: string, dayNumber: number): Promise<Devotional | null> {
+  return cachedDevotionalByDay(journalId, dayNumber, () => _fetchDevotionalByDay(journalId, dayNumber));
 }
+
+// ─── User Progress ─────────────────────────
 
 export async function getUserProgress(devotionalId: string): Promise<UserProgress | null> {
   const deviceId = getDeviceId();

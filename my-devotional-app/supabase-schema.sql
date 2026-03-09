@@ -3,9 +3,22 @@
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
+CREATE TABLE IF NOT EXISTS journals (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  slug VARCHAR(255) NOT NULL UNIQUE,
+  description TEXT,
+  cover_emoji VARCHAR(10) NOT NULL DEFAULT '📖',
+  is_active BOOLEAN NOT NULL DEFAULT true,
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 CREATE TABLE IF NOT EXISTS devotionals (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-  day_number INTEGER NOT NULL UNIQUE,
+  journal_id UUID NOT NULL REFERENCES journals(id) ON DELETE CASCADE,
+  day_number INTEGER NOT NULL,
   title VARCHAR(255) NOT NULL,
   date DATE NOT NULL,
   bible_passage_reference VARCHAR(255) NOT NULL,
@@ -15,7 +28,8 @@ CREATE TABLE IF NOT EXISTS devotionals (
   prayer_text TEXT NOT NULL,
   is_published BOOLEAN DEFAULT false,
   created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  CONSTRAINT devotionals_journal_day_unique UNIQUE (journal_id, day_number)
 );
 
 CREATE TABLE IF NOT EXISTS user_progress (
@@ -38,6 +52,7 @@ CREATE TABLE IF NOT EXISTS admin_profiles (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+CREATE INDEX IF NOT EXISTS idx_devotionals_journal ON devotionals(journal_id);
 CREATE INDEX IF NOT EXISTS idx_devotionals_day ON devotionals(day_number);
 CREATE INDEX IF NOT EXISTS idx_devotionals_date ON devotionals(date);
 CREATE INDEX IF NOT EXISTS idx_devotionals_published ON devotionals(is_published);
@@ -55,6 +70,11 @@ $$ LANGUAGE plpgsql;
 DROP TRIGGER IF EXISTS update_devotionals_updated_at ON devotionals;
 CREATE TRIGGER update_devotionals_updated_at
   BEFORE UPDATE ON devotionals
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_journals_updated_at ON journals;
+CREATE TRIGGER update_journals_updated_at
+  BEFORE UPDATE ON journals
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 DROP TRIGGER IF EXISTS update_progress_updated_at ON user_progress;
@@ -89,6 +109,7 @@ $$;
 ALTER TABLE devotionals ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_progress ENABLE ROW LEVEL SECURITY;
 ALTER TABLE admin_profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE journals ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Anyone can read published devotionals" ON devotionals;
 DROP POLICY IF EXISTS "Admins can do everything with devotionals" ON devotionals;
@@ -104,6 +125,11 @@ DROP POLICY IF EXISTS "Device insert own progress" ON user_progress;
 DROP POLICY IF EXISTS "Device update own progress" ON user_progress;
 DROP POLICY IF EXISTS "Device delete own progress" ON user_progress;
 DROP POLICY IF EXISTS "Admins read own profile" ON admin_profiles;
+DROP POLICY IF EXISTS "Public read active journals" ON journals;
+DROP POLICY IF EXISTS "Admins read all journals" ON journals;
+DROP POLICY IF EXISTS "Admins insert journals" ON journals;
+DROP POLICY IF EXISTS "Admins update journals" ON journals;
+DROP POLICY IF EXISTS "Admins delete journals" ON journals;
 
 CREATE POLICY "Public read published devotionals"
   ON devotionals FOR SELECT
@@ -156,3 +182,29 @@ CREATE POLICY "Admins read own profile"
   ON admin_profiles FOR SELECT
   TO authenticated
   USING (id = auth.uid());
+
+CREATE POLICY "Public read active journals"
+  ON journals FOR SELECT
+  TO anon, authenticated
+  USING (is_active = true);
+
+CREATE POLICY "Admins read all journals"
+  ON journals FOR SELECT
+  TO authenticated
+  USING (public.is_admin());
+
+CREATE POLICY "Admins insert journals"
+  ON journals FOR INSERT
+  TO authenticated
+  WITH CHECK (public.is_admin());
+
+CREATE POLICY "Admins update journals"
+  ON journals FOR UPDATE
+  TO authenticated
+  USING (public.is_admin())
+  WITH CHECK (public.is_admin());
+
+CREATE POLICY "Admins delete journals"
+  ON journals FOR DELETE
+  TO authenticated
+  USING (public.is_admin());
