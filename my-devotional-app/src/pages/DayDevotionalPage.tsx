@@ -26,14 +26,31 @@ export default function DayDevotionalPage() {
 
   const [currentStep, setCurrentStep] = useState(0);
   const [direction, setDirection] = useState(0);
-  const [completionDismissed, setCompletionDismissed] = useState(false);
+  // Track whether the completion was already done when the page loaded
+  const [wasAlreadyCompleted, setWasAlreadyCompleted] = useState<boolean | null>(null);
+  const [justCompleted, setJustCompleted] = useState(false);
 
   // Reset stepper to step 0 when navigating to a different day
   useEffect(() => {
     setCurrentStep(0);
     setDirection(0);
-    setCompletionDismissed(false);
+    setWasAlreadyCompleted(null);
+    setJustCompleted(false);
   }, [day]);
+
+  // Record whether the devotional was already completed when we first loaded it
+  useEffect(() => {
+    if (wasAlreadyCompleted === null && progress !== undefined) {
+      setWasAlreadyCompleted(Boolean(progress?.is_completed));
+    }
+  }, [progress, wasAlreadyCompleted]);
+
+  // Detect when the devotional transitions from incomplete → complete (just finished now)
+  useEffect(() => {
+    if (wasAlreadyCompleted === false && progress?.is_completed) {
+      setJustCompleted(true);
+    }
+  }, [progress?.is_completed, wasAlreadyCompleted]);
 
   const completedSteps = progress?.completed_steps ?? {
     passage: false,
@@ -42,7 +59,8 @@ export default function DayDevotionalPage() {
     prayer: false,
   };
 
-  const showCompletion = Boolean(progress?.is_completed) && !completionDismissed;
+  // Only show the completion overlay if the user JUST completed it in this session
+  const showCompletion = justCompleted;
 
   const goToStep = (index: number) => {
     setDirection(index > currentStep ? 1 : -1);
@@ -194,7 +212,7 @@ export default function DayDevotionalPage() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-6"
-            onClick={() => setCompletionDismissed(true)}
+            onClick={() => setJustCompleted(false)}
           >
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}

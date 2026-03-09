@@ -1,6 +1,23 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="96" fill="#1e3a5f"/>
-  <text x="256" y="200" font-family="Georgia, serif" font-size="180" fill="#d4a843" text-anchor="middle" font-weight="bold">✝</text>
-  <text x="256" y="380" font-family="system-ui, sans-serif" font-size="60" fill="white" text-anchor="middle" font-weight="700">IMPACT</text>
-  <text x="256" y="430" font-family="system-ui, sans-serif" font-size="30" fill="#e8c76b" text-anchor="middle" font-weight="500">TIMIȘOARA</text>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1e3a5f"/>
+      <stop offset="100%" stop-color="#152d4a"/>
+    </linearGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <!-- Outer circle -->
+  <circle cx="256" cy="230" r="120" fill="none" stroke="#d4a843" stroke-width="10"/>
+  <!-- Inner circle (small center) -->
+  <circle cx="256" cy="230" r="22" fill="none" stroke="#d4a843" stroke-width="8"/>
+  <!-- Three lines radiating from center to outer circle (Impact logo symbol) -->
+  <!-- Top line (straight up) -->
+  <line x1="256" y1="208" x2="256" y2="110" stroke="#d4a843" stroke-width="8" stroke-linecap="round"/>
+  <!-- Bottom-left line -->
+  <line x1="241" y1="248" x2="192" y2="333" stroke="#d4a843" stroke-width="8" stroke-linecap="round"/>
+  <!-- Bottom-right line -->
+  <line x1="271" y1="248" x2="320" y2="333" stroke="#d4a843" stroke-width="8" stroke-linecap="round"/>
+  <!-- IMPACT text -->
+  <text x="256" y="420" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="62" fill="white" text-anchor="middle" font-weight="800" letter-spacing="8">IMPACT</text>
 </svg>
