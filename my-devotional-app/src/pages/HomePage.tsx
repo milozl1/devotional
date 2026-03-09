@@ -1,4 +1,4 @@
-import { BookOpen, ChevronRight } from 'lucide-react';
+import { BookOpen, ChevronRight, Download } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useJournals } from '../hooks/useDevotional';
 import { ErrorState } from '../components/ui/ErrorState';
@@ -32,14 +32,24 @@ export default function HomePage() {
       {/* Header */}
       <div className="bg-gradient-to-br from-[#1e3a5f] via-[#2a4d7a] to-[#152d4a] text-white">
         <div className="max-w-lg mx-auto px-5 pt-12 pb-10">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-white/15 backdrop-blur flex items-center justify-center">
-              <BookOpen className="w-5 h-5" />
+          <div className="flex items-start justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-white/15 backdrop-blur flex items-center justify-center">
+                <BookOpen className="w-5 h-5" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold">Biserica Impact Timișoara</h1>
+                <p className="text-[#e8c76b] text-xs font-medium">Jurnale Devoționale</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-xl font-bold">Biserica Impact Timișoara</h1>
-              <p className="text-[#e8c76b] text-xs font-medium">Jurnale Devoționale</p>
-            </div>
+            <button
+              onClick={() => navigate('/instaleaza')}
+              className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 backdrop-blur rounded-xl px-3 py-2 transition-all duration-200 text-white/80 hover:text-white shrink-0 mt-0.5"
+              title="Instalează aplicația"
+            >
+              <Download className="w-4 h-4" />
+              <span className="text-xs font-medium hidden sm:inline">Instalează</span>
+            </button>
           </div>
           <p className="text-slate-300 text-sm leading-relaxed">
             Alege un jurnal devoțional pentru a începe sau continua studiul biblic zilnic.

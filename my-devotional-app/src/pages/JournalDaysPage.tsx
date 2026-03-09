@@ -1,4 +1,4 @@
-import { BookOpen, ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react';
+import { BookOpen, ChevronLeft, ChevronRight, RefreshCw, Download } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useJournal, useDevotionals, useAllProgress } from '../hooks/useDevotional';
 import { DevotionalCard } from '../components/devotional/DevotionalCard';
@@ -50,14 +50,24 @@ export default function JournalDaysPage() {
       {/* Header */}
       <div className="bg-gradient-to-br from-[#1e3a5f] via-[#2a4d7a] to-[#152d4a] text-white">
         <div className="max-w-lg mx-auto px-5 pt-6 pb-8">
-          {/* Back button */}
-          <button
-            onClick={() => navigate('/')}
-            className="flex items-center gap-1 text-slate-300 hover:text-white transition-colors mb-4"
-          >
-            <ChevronLeft className="w-4 h-4" />
-            <span className="text-sm">Toate jurnalele</span>
-          </button>
+          {/* Top row: back + install */}
+          <div className="flex items-center justify-between mb-4">
+            <button
+              onClick={() => navigate('/')}
+              className="flex items-center gap-1 text-slate-300 hover:text-white transition-colors"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              <span className="text-sm">Toate jurnalele</span>
+            </button>
+            <button
+              onClick={() => navigate('/instaleaza')}
+              className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 backdrop-blur rounded-lg px-2.5 py-1.5 transition-all duration-200 text-white/70 hover:text-white"
+              title="Instalează aplicația"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span className="text-xs font-medium">Instalează</span>
+            </button>
+          </div>
 
           <div className="flex items-center gap-3 mb-6">
             <div className="w-12 h-12 rounded-xl bg-white/15 backdrop-blur flex items-center justify-center">

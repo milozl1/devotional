@@ -8,6 +8,7 @@ import { FullPageLoader } from './components/ui/LoadingSpinner';
 const HomePage = lazy(() => import('./pages/HomePage'));
 const JournalDaysPage = lazy(() => import('./pages/JournalDaysPage'));
 const DayDevotionalPage = lazy(() => import('./pages/DayDevotionalPage'));
+const InstallPage = lazy(() => import('./pages/InstallPage'));
 const AdminLoginPage = lazy(() => import('./pages/admin/AdminLoginPage'));
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
 const DevotionalForm = lazy(() => import('./pages/admin/DevotionalForm'));
@@ -22,6 +23,7 @@ export default function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/jurnal/:slug" element={<JournalDaysPage />} />
             <Route path="/jurnal/:slug/ziua/:dayNumber" element={<DayDevotionalPage />} />
+            <Route path="/instaleaza" element={<InstallPage />} />
 
             {/* Admin routes */}
             <Route path="/admin/login" element={<AdminLoginPage />} />
